@@ -1,0 +1,8 @@
+.codigo:focus{
+    box-shadow: 0 0 4px 5px rgba(11, 95, 213, 0.5);
+}
+
+.codigo{
+    transition: box-shadow .2s;
+    /* background-color: #12741b; */
+}
