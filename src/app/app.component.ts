@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { WebcamImage, WebcamInitError, WebcamUtil } from 'ngx-webcam';
-import { Observable, Subject } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { TakePhotoService } from './services/take-photo.service';
+import Swal from 'sweetalert2'
+import { WebcamImage } from 'ngx-webcam';
 
 @Component({
   selector: 'app-root',
@@ -8,65 +11,37 @@ import { Observable, Subject } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-   // toggle webcam on/off
-   public showWebcam = true;
-   public allowCameraSwitch = true;
-   public multipleWebcamsAvailable = false;
-   public deviceId: string = '';
-   public videoOptions: MediaTrackConstraints = {
-   };
-   
-   public errors: WebcamInitError[] = [];
+
+  private img: WebcamImage = {} as WebcamImage;
+
+   public codeForm: FormGroup = this.fb.group({
+    studentCode: ['', [Validators.required]]
+   }) 
+
+   constructor (
+    private photoServie: TakePhotoService,
+    private fb: FormBuilder
+   ) { }
  
-   // latest snapshot
-   public webcamImage: WebcamImage = {} as WebcamImage;
  
-   // webcam snapshot trigger
-   private trigger: Subject<void> = new Subject<void>();
-   // switch to next / previous / specific webcam; true/false: forward/backwards, string: deviceId
-   private nextWebcam: Subject<boolean|string> = new Subject<boolean|string>();
- 
-   public ngOnInit(): void {
-     WebcamUtil.getAvailableVideoInputs()
-       .then((mediaDevices: MediaDeviceInfo[]) => {
-         this.multipleWebcamsAvailable = mediaDevices && mediaDevices.length > 1;
-       });
+
+   public inputError(){
+      return this.codeForm.controls['studentCode'].errors && this.codeForm.controls['studentCode'].touched 
    }
- 
-   public triggerSnapshot(): void {
-     this.trigger.next();
+
+   public captureImg(event: WebcamImage){
+      this.img = event;
    }
- 
-   public toggleWebcam(): void {
-     this.showWebcam = !this.showWebcam;
-   }
- 
-   public handleInitError(error: WebcamInitError): void {
-     this.errors.push(error);
-   }
- 
-   public showNextWebcam(directionOrDeviceId: boolean|string): void {
-     // true => move forward through devices
-     // false => move backwards through devices
-     // string => move to device with given deviceId
-     this.nextWebcam.next(directionOrDeviceId);
-   }
- 
-   public handleImage(webcamImage: WebcamImage): void {
-     console.info('received webcam image', webcamImage);
-     this.webcamImage = webcamImage;
-   }
- 
-   public cameraWasSwitched(deviceId: string): void {
-     console.log('active device: ' + deviceId);
-     this.deviceId = deviceId;
-   }
- 
-   public get triggerObservable(): Observable<void> {
-     return this.trigger.asObservable();
-   }
- 
-   public get nextWebcamObservable(): Observable<boolean|string> {
-     return this.nextWebcam.asObservable();
+
+   public saveImg(){
+    this.photoServie.takeSnapshot()
+    
+    this.photoServie.enviarImg(this.img.imageAsBase64, this.codeForm.controls['studentCode'].value)
+        .subscribe({
+          next: (res: any) => {
+            this.codeForm.reset()
+            Swal.fire('Foto tomada con éxito', '', 'success');
+          }
+        })
    }
 }

@@ -1,23 +1,32 @@
 
-<div class="flex mt-6 px-6 max-w-[1200px] mx-auto">
-  <div class="w-1/2">
-      <webcam [height]="600" [width]="720" [trigger]="triggerObservable" (imageCapture)="handleImage($event)" *ngIf="showWebcam"
-                [allowCameraSwitch]="allowCameraSwitch" [switchCamera]="nextWebcamObservable"
-                [videoOptions]="videoOptions"
-                [imageQuality]="1"
-                (cameraSwitched)="cameraWasSwitched($event)"
-                (initError)="handleInitError($event)"
-    ></webcam>
-  </div>
-  <div class="w-1/2" >
-    <h1 class="text-6xl text-center block mb-20">Sonrie</h1>
-    <form>
+<div class=" mt-6 px-6 max-w-[1200px] mx-auto ">
+  <div class="flex justify-center">
+    <app-camara (imgEmitter)="captureImg($event)"  ></app-camara>
+  </div>  
+  <div class="" >
+    <form [formGroup]="codeForm">
       <div class="flex flex-col items-center ">
-          <h2 class="mb-6">Código</h2>
-          <input type="text" class="codigo block w-11/12 mb-8 border border-gray-400 rounded-md py-1 px-2 outline-none transition-colors focus:border-blue-700" 
-                 placeholder="codigo" >
-          <button type="button" class="mx-auto bg-[#198754] py-2 px-4 text-white font-semibold rounded-md hover:bg-[#12741b] transition-colors"
-                  (click)="triggerSnapshot()">Tomar foto</button>
+          <h2 class="my-4 text-2xl font-semibold">Código</h2>
+          <div class="w-11/12 mx-auto mb-4 max-w-[720px] ">
+            <input type="text" class="block w-full px-2 py-1 mb-2 border border-gray-400 rounded-md outline-none trasition-colors codigo focus:border-blue-700" 
+                   placeholder="codigo"
+                   formControlName="studentCode"
+                   [ngClass]="{
+                    'border-red-600': inputError()
+                   }" >
+            <span class="px-3 font-semibold text-red-600" *ngIf="inputError()">¡Ingrese un codigo!</span>
+          </div>
+          <button type="button" class="mx-auto mb-10 bg-[#198754] py-2 px-4 text-white font-semibold rounded-md  transition-colors cursor-pointer"
+                  [ngClass]="
+                    { 
+                      'bg-gray-400 ': codeForm.controls['studentCode'].errors,
+                      'hover:bg-[#12741b]': ! codeForm.controls['studentCode'].errors
+                    }
+                  "
+                  (click)="saveImg()"
+                  [disabled]="codeForm.controls['studentCode'].errors"
+                  
+                  >Tomar foto</button>
       </div>
     </form>
   </div>
