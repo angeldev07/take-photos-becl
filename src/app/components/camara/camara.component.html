@@ -1,0 +1,11 @@
+<webcam *ngIf="showWebcam"
+        [height]="600" [width]="720" 
+        [trigger]="triggerObservable"  
+        [allowCameraSwitch]="allowCameraSwitch" 
+        [switchCamera]="nextWebcamObservable"
+        [videoOptions]="videoOptions"
+        [imageQuality]="1"
+        (cameraSwitched)="cameraWasSwitched($event)"
+        (initError)="handleInitError($event)"
+        (imageCapture)="handleImage($event)"
+></webcam>
